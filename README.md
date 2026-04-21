@@ -37,6 +37,26 @@ Open [http://localhost:3000](http://localhost:3000).
 - `dentalscan-assessment/starter-kit/prisma/schema.prisma`
 
 ## Implementation Screenshots/Videos
+### Task 1: Scan Enhancement
+FE:
+<img width="1904" height="911" alt="image" src="https://github.com/user-attachments/assets/fcae2ea1-7492-472d-bc6f-13b7fba4e6ef" />
+
+### Task 2: Notification System
+BE :
+<img width="1901" height="344" alt="image" src="https://github.com/user-attachments/assets/16c8369e-571d-42fd-8ec5-890601d5ae48" />
+
+### Task 3: Patient-Dentist Messaging 
+FE:
+<img width="1899" height="794" alt="image" src="https://github.com/user-attachments/assets/936d50cf-9457-4e12-aace-f175eb999f75" />
+BE:
+<img width="1902" height="389" alt="image" src="https://github.com/user-attachments/assets/6d3580d8-e718-4839-ba66-5ec992e0fbe4" />
+<img width="1910" height="501" alt="image" src="https://github.com/user-attachments/assets/fdc83b5d-75ba-483c-9e92-22b9601c1b6e" />
+
+
+
+
+
+
 
 ## Notes
 
