@@ -29,6 +29,13 @@ export type FrameAnalysisCanvas = {
   currentSample: Uint8Array;
 };
 
+export type FaceFrameMetrics = {
+  detectedFaceCount: number;
+  primaryFaceHeightRatio: number | null;
+  primaryFaceWidthRatio: number | null;
+  centerOffsetRatio: number | null;
+};
+
 export type SubmissionState = "idle" | "uploading" | "success" | "error";
 
 export type NotificationInfo = {

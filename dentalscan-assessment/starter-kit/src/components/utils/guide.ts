@@ -1,9 +1,21 @@
 import type { MutableRefObject } from "react";
 
-import type { FrameAnalysisCanvas, GuideFeedback, GuideTone, GuideToneStyles } from "./types";
+import type {
+  FaceFrameMetrics,
+  FrameAnalysisCanvas,
+  GuideFeedback,
+  GuideTone,
+  GuideToneStyles,
+} from "./types";
 
 const MOTION_ALERT_THRESHOLD = 0.075;
 const MOTION_SETTLING_THRESHOLD = 0.022;
+const FACE_TOO_FAR_HEIGHT_RATIO = 0.28;
+const FACE_FAR_HEIGHT_RATIO = 0.36;
+const FACE_TOO_CLOSE_HEIGHT_RATIO = 0.74;
+const FACE_CLOSE_HEIGHT_RATIO = 0.66;
+const FACE_CENTER_ALERT_THRESHOLD = 0.24;
+const FACE_CENTER_SETTLING_THRESHOLD = 0.16;
 
 export const DEFAULT_GUIDE_FEEDBACK: GuideFeedback = {
   tone: "medium",
@@ -123,8 +135,9 @@ export function deriveGuideFeedback(params: {
   frameWidth: number;
   frameHeight: number;
   motionScore: number | null;
+  faceMetrics: FaceFrameMetrics | null;
 }) {
-  const { frameWidth, frameHeight, motionScore } = params;
+  const { frameWidth, frameHeight, motionScore, faceMetrics } = params;
 
   if (frameWidth <= 0 || frameHeight <= 0) {
     return {
@@ -133,6 +146,46 @@ export function deriveGuideFeedback(params: {
       title: "Preparing stability guide",
       detail: "Allow the camera to finish loading before you capture.",
       hint: "The ring will react once the live feed is ready.",
+    };
+  }
+
+  if (!faceMetrics || faceMetrics.detectedFaceCount === 0 || faceMetrics.primaryFaceHeightRatio == null) {
+    return {
+      tone: "low" as const,
+      badge: "Face not found",
+      title: "Bring your face into view",
+      detail: "We cannot judge scan distance until your face is visible inside the guide.",
+      hint: "Center yourself in the ring before capturing.",
+    };
+  }
+
+  if (faceMetrics.primaryFaceHeightRatio < FACE_TOO_FAR_HEIGHT_RATIO) {
+    return {
+      tone: "low" as const,
+      badge: "Too far",
+      title: "Move closer",
+      detail: "Your face is too small in frame for a reliable dental scan.",
+      hint: "Bring the phone slightly closer until the guide turns amber or green.",
+    };
+  }
+
+  if (faceMetrics.primaryFaceHeightRatio > FACE_TOO_CLOSE_HEIGHT_RATIO) {
+    return {
+      tone: "low" as const,
+      badge: "Too close",
+      title: "Move back a little",
+      detail: "Your face is too large in frame and parts of the scan may be cropped.",
+      hint: "Increase the distance until your face sits comfortably inside the guide.",
+    };
+  }
+
+  if ((faceMetrics.centerOffsetRatio ?? 0) > FACE_CENTER_ALERT_THRESHOLD) {
+    return {
+      tone: "medium" as const,
+      badge: "Off-center",
+      title: "Recenter your face",
+      detail: "The scan is visible, but it is drifting away from the guide.",
+      hint: "Keep your mouth near the middle of the ring.",
     };
   }
 
@@ -163,6 +216,36 @@ export function deriveGuideFeedback(params: {
       title: "Almost steady",
       detail: "The camera is improving, but there is still some motion in the frame.",
       hint: "Wait for the ring to turn green before capturing.",
+    };
+  }
+
+  if (faceMetrics.primaryFaceHeightRatio < FACE_FAR_HEIGHT_RATIO) {
+    return {
+      tone: "medium" as const,
+      badge: "Move closer",
+      title: "Almost in range",
+      detail: "The framing is improving, but your face is still slightly small in the guide.",
+      hint: "Bring the phone a touch closer for a sharper scan.",
+    };
+  }
+
+  if (faceMetrics.primaryFaceHeightRatio > FACE_CLOSE_HEIGHT_RATIO) {
+    return {
+      tone: "medium" as const,
+      badge: "Ease back",
+      title: "Slightly too close",
+      detail: "Your framing is close, but there is not much space around your face.",
+      hint: "Lean back just a little before capturing.",
+    };
+  }
+
+  if ((faceMetrics.centerOffsetRatio ?? 0) > FACE_CENTER_SETTLING_THRESHOLD) {
+    return {
+      tone: "medium" as const,
+      badge: "Recenter",
+      title: "Nearly aligned",
+      detail: "Your framing is close, but the face is still a little off the guide center.",
+      hint: "Shift the phone until the ring settles green.",
     };
   }
 
